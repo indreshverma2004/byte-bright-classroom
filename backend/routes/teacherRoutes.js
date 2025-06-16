@@ -16,4 +16,14 @@ router.post('/create-classroom', async (req, res) => {
   res.send(classroom);
 });
 
+router.get('/classrooms/:teacherId', async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+    const classrooms = await Classroom.find({ teacher: teacherId });
+    res.send(classrooms);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

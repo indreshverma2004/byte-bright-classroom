@@ -3,10 +3,29 @@ const Classroom = require('../models/Classroom');
 const router = express.Router();
 
 router.get('/:id', async (req, res) => {
-  const classroom = await Classroom.findById(req.params.id)
-    .populate('polls')
-    .populate('questions');
-  res.send(classroom);
+  try {
+    const classroom = await Classroom.findById(req.params.id)
+      .populate({
+        path: 'polls',
+        populate: [
+          {
+            path: 'responses.voters',
+            select: 'name email'  // optional: if you want to show who voted
+          },
+          {
+            path: 'textResponses.student',
+            select: 'name email'  // optional: show who gave text answers
+          }
+        ]
+      })
+      .populate('questions');
+
+    if (!classroom) return res.status(404).send("Classroom not found");
+
+    res.send(classroom);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;

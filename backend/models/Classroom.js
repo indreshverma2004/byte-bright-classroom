@@ -6,6 +6,7 @@ const classroomSchema = new mongoose.Schema({
   teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher' },
   polls: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Poll' }],
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'CodingQuestion' }],
+  students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }] // <-- added field
 });
 
 module.exports = mongoose.model('Classroom', classroomSchema);

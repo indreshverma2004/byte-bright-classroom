@@ -32,7 +32,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ userRole }) => {
       id: 2,
       type: 'poll' as const,
       title: 'Which programming concept is most challenging?',
-      pollType: 'multiple-choice',
+      pollType: 'multiple-choice' as const,
       options: ['Recursion', 'Pointers', 'Object-oriented Programming', 'Data Structures'],
       createdAt: new Date().toISOString(),
     }

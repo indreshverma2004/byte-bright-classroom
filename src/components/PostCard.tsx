@@ -55,9 +55,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, userRole, onEdit, onDe
         <div className="flex items-center space-x-3">
           <div className={`p-2 rounded-lg ${post.type === 'question' ? 'bg-blue-100' : 'bg-green-100'}`}>
             {post.type === 'question' ? (
-              <Code className={`w-5 h-5 ${post.type === 'question' ? 'text-blue-600' : 'text-green-600'}`} />
+              <Code className="w-5 h-5 text-blue-600" />
             ) : (
-              <BarChart3 className={`w-5 h-5 ${post.type === 'question' ? 'text-blue-600' : 'text-green-600'}`} />
+              <BarChart3 className="w-5 h-5 text-green-600" />
             )}
           </div>
           <div>

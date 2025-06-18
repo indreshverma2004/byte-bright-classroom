@@ -15,6 +15,7 @@ import Submissions from "./pages/Submissions";
 import StudentLogin from "./pages/studentlogin";
 const queryClient = new QueryClient();
 import { StudentDashboard } from "./components/StudentDashboard";
+import Signup from "./pages/Signup";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/submissions" element={<Submissions />} />
           <Route path="/student-login" element={<StudentLogin />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

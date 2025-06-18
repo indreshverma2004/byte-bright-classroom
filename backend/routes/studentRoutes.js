@@ -14,6 +14,28 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const student = await Student.findOne({ email });
+
+    if (!student || student.password !== password) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    res.json({
+      message: "Login successful",
+      studentId: student._id,
+      name: student.name,
+      email: student.email
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // Enroll in a classroom using class code
 router.post('/enroll', async (req, res) => {
   try {

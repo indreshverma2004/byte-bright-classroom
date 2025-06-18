@@ -9,6 +9,27 @@ router.post('/register', async (req, res) => {
   res.send(teacher);
 });
 
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const teacher = await Teacher.findOne({ email });
+
+    if (!teacher || teacher.password !== password) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    res.json({
+      message: "Login successful",
+      teacherId: teacher._id,
+      name: teacher.name,
+      email: teacher.email
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/create-classroom', async (req, res) => {
   const classroom = new Classroom({ ...req.body });
   await classroom.save();

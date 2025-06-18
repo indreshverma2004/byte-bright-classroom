@@ -1,15 +1,32 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const StudentLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleSubmit = (e) => {
+    const navigate = useNavigate();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+    try {
+      const response = await fetch("http://localhost:5000/student/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+      const data = await response.json();
+      console.log("Response:", data);
+      localStorage.setItem("studentData", JSON.stringify(data));
+      alert("Login successful!");
+      navigate("/student-dashboard"); // Redirect to the home page or dashboard
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert("Login failed. Please check your credentials.");
+    }
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">

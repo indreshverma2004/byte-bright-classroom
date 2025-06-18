@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Dashboard } from '../components/Dashboard';
 import { Users, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -58,8 +57,6 @@ const Index = () => {
       </div>
     );
   }
-
-  return <Dashboard userRole={userRole} />;
 };
 
 export default Index;

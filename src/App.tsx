@@ -14,6 +14,7 @@ import Polls from "./pages/Polls";
 import Submissions from "./pages/Submissions";
 import StudentLogin from "./pages/studentlogin";
 const queryClient = new QueryClient();
+import { StudentDashboard } from "./components/StudentDashboard";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -30,7 +31,7 @@ const App = () => (
           <Route path="/polls" element={<Polls />} />
           <Route path="/submissions" element={<Submissions />} />
           <Route path="/student-login" element={<StudentLogin />} />
-          {/* Catch-all route for 404 Not Found */}
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

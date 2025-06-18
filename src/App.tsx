@@ -12,7 +12,7 @@ import ClassroomDetail from "./pages/ClassroomDetail";
 import CodingTasks from "./pages/CodingTasks";
 import Polls from "./pages/Polls";
 import Submissions from "./pages/Submissions";
-
+import StudentLogin from "./pages/studentlogin";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -29,6 +29,8 @@ const App = () => (
           <Route path="/coding-tasks" element={<CodingTasks />} />
           <Route path="/polls" element={<Polls />} />
           <Route path="/submissions" element={<Submissions />} />
+          <Route path="/student-login" element={<StudentLogin />} />
+          {/* Catch-all route for 404 Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

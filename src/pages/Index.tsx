@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Dashboard } from '../components/Dashboard';
 import { Users, GraduationCap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [userRole, setUserRole] = useState<'teacher' | 'student' | null>(null);
@@ -39,10 +40,12 @@ const Index = () => {
               <div className="p-3 bg-green-100 rounded-lg">
                 <GraduationCap className="w-6 h-6 text-green-600" />
               </div>
+              <Link to="/student-login" className="text-left w-full">
               <div className="text-left">
                 <h3 className="text-lg font-semibold text-gray-900">I'm a Student</h3>
                 <p className="text-sm text-gray-600">Join classrooms and solve coding challenges</p>
               </div>
+              </Link>
             </button>
           </div>
 

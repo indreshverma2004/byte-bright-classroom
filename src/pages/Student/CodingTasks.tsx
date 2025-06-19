@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { Layout } from '../components/Layout';
-import { PostCard } from '../components/PostCard';
-import { CreatePostModal } from '../components/CreatePostModal';
+import { Layout } from '../../components/Layout';
+import { PostCard } from '../../components/PostCard';
+import { CreatePostModal } from '../../components/CreatePostModal';
 import { Plus, Code, Filter } from 'lucide-react';
 
 const CodingTasks = () => {

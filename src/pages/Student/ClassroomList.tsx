@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Layout } from '../components/Layout';
-import { ClassroomCard } from '../components/ClassroomCard';
+import { Layout } from '../../components/Layout';
+import { ClassroomCard } from '../../components/ClassroomCard';
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

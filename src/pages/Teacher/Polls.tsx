@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { Layout } from '../components/Layout';
-import { PostCard } from '../components/PostCard';
-import { CreatePostModal } from '../components/CreatePostModal';
+import { Layout } from '../../components/Layout';
+import { PostCard } from '../../components/PostCard';
+import { CreatePostModal } from '../../components/CreatePostModal';
 import { Plus, BarChart3, Filter } from 'lucide-react';
 
-const Polls = () => {
+const TeacherPolls = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [posts, setPosts] = useState([
     {
@@ -159,4 +159,4 @@ const Polls = () => {
   );
 };
 
-export default Polls;
+export default TeacherPolls;

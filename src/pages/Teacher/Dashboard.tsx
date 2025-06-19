@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Layout } from "../../components/Layout";
 import { ClassroomCard } from "../../components/ClassroomCard";
 import { PostCard } from "../../components/PostCard";
-import { JoinClassModal } from "../../components/JoinClassModal";
 import { Plus } from "lucide-react";
 
 export const TeacherDashboard: React.FC = () => {
-  const [showJoinModal, setShowJoinModal] = useState(false);
-  const [studentName, setStudentName] = useState("");
+  const [teacherName, setTeacherName] = useState("Teacher");
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -39,45 +37,46 @@ export const TeacherDashboard: React.FC = () => {
   ]);
 
   useEffect(() => {
-    const studentData = localStorage.getItem("studentData");
-    if (studentData) {
-      const parsed = JSON.parse(studentData);
-      setStudentName(parsed.name || "Student");
+    const teacherData = localStorage.getItem("teacherData");
+    if (teacherData) {
+      const parsed = JSON.parse(teacherData);
+      setTeacherName(parsed.name || "Teacher");
     }
   }, []);
 
   return (
-    <Layout userRole="student">
+    <Layout userRole="teacher">
       <div className="space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {studentName}! 👋
+              Welcome back, {teacherName}! 👋
             </h1>
             <p className="text-gray-600 mt-2">
-              Continue your coding journey and complete assignments.
+              Manage your classes, posts, and students efficiently.
             </p>
           </div>
 
-          <button
-            onClick={() => setShowJoinModal(true)}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary-500 to-secondary-600 text-white rounded-lg hover:from-secondary-600 hover:to-secondary-700 transition-all duration-200 shadow-md hover:shadow-lg"
+          <a
+            href="/classroom/create"
+            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <Plus className="w-5 h-5" />
-            <span className="font-medium">Join Class</span>
-          </button>
+            <span className="font-medium">Create Class</span>
+          </a>
         </div>
 
         {/* Classroom Section */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Your Classroom</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Your Classrooms</h2>
           <ClassroomCard
             name="Advanced Python Programming"
             code="ABC123"
             studentCount={24}
-            userRole="student"
+            userRole="teacher"
           />
+          {/* Add more classrooms dynamically if needed */}
         </div>
 
         {/* Posts Section */}
@@ -88,25 +87,14 @@ export const TeacherDashboard: React.FC = () => {
               <PostCard
                 key={post.id}
                 post={post}
-                userRole="student"
-                onEdit={() => {}}
-                onDelete={() => {}}
+                userRole="teacher"
+                onEdit={() => console.log("Edit post", post.id)}
+                onDelete={() => console.log("Delete post", post.id)}
               />
             ))}
           </div>
         </div>
       </div>
-
-      {/* Join Modal */}
-      {showJoinModal && (
-        <JoinClassModal
-          onClose={() => setShowJoinModal(false)}
-          onJoin={(code) => {
-            console.log("Student joining class with code:", code);
-            setShowJoinModal(false);
-          }}
-        />
-      )}
     </Layout>
   );
 };

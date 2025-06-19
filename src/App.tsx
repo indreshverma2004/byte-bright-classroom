@@ -14,9 +14,10 @@ import Polls from "./pages/Polls";
 import Submissions from "./pages/Submissions";
 import StudentLogin from "./pages/studentlogin";
 const queryClient = new QueryClient();
-import { StudentDashboard } from "./components/StudentDashboard";
+import { StudentDashboard } from "./pages/Student/StudentDashboard";
 import Signup from "./pages/Signup";
-
+import TeacherLogin from "./pages/teacherlogin";
+import { TeacherDashboard } from "./pages/Teacher/Dashboard";
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -34,6 +35,9 @@ const App = () => (
           <Route path="/student-login" element={<StudentLogin />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/teacher-login" element={<TeacherLogin />} />
+          <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+          {/* Catch-all route for 404 Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

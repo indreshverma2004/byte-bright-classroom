@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Layout } from "./Layout";
-import { ClassroomCard } from "./ClassroomCard";
-import { PostCard } from "./PostCard";
-import { JoinClassModal } from "./JoinClassModal";
+import { Layout } from "../../components/Layout";
+import { ClassroomCard } from "../../components/ClassroomCard";
+import { PostCard } from "../../components/PostCard";
+import { JoinClassModal } from "../../components/JoinClassModal";
 import { Plus } from "lucide-react";
 
-export const StudentDashboard: React.FC = () => {
+export const TeacherDashboard: React.FC = () => {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [studentName, setStudentName] = useState("");
   const [posts, setPosts] = useState([

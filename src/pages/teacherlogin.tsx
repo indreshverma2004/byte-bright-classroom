@@ -6,6 +6,8 @@ const TeacherLogin = () => {
     const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Email:", email);
+    console.log("Password:", password );
     try {
       const response = await fetch("http://localhost:5000/teacher/login", {
         method: "POST",

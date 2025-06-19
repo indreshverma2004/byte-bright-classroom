@@ -1,128 +1,176 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Sidebar } from "./Sidebar";
 
-import React, { useState } from 'react';
-import { Layout } from '../../components/Layout';
-import { PostCard } from '../../components/PostCard';
-import { CreatePostModal } from '../../components/CreatePostModal';
-import { Plus, BarChart3, Filter } from 'lucide-react';
+type QuestionType = "mcq" | "text";
 
-const StudentPolls = () => {
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [posts, setPosts] = useState([]);
+interface Question {
+  _id: string;
+  question: string;
+  type: QuestionType;
+  options?: string[];
+  classroom: {
+    name: string;
+    teacher: {
+      name: string;
+    };
+  };
+  createdAt: string;
+  responses?: {
+    answer: string;
+    count: number;
+    voters: {
+      _id: string;
+      name: string;
+      email: string;
+    }[];
+  }[];
+}
 
-  const [selectedType, setSelectedType] = useState('all');
-  const pollTypes = ['all', 'multiple-choice', 'open-ended'];
+const StudentLatestQuestion: React.FC = () => {
+  const [latestQuestion, setLatestQuestion] = useState<Question | null>(null);
+  const [answer, setAnswer] = useState<string>("");
+  const [submitStatus, setSubmitStatus] = useState<string>("");
+  const [studentId, setStudentId] = useState<string>("");
 
-  const filteredPosts = selectedType === 'all' 
-    ? posts 
-    : posts.filter(post => post.pollType === selectedType);
+  useEffect(() => {
+    const studentData = localStorage.getItem("studentData");
+
+    if (studentData) {
+      const parsed = JSON.parse(studentData);
+      setStudentId(parsed.studentId);
+
+      const fetchLatestQuestion = async () => {
+        try {
+          const res = await axios.get("http://localhost:5000/poll/all");
+          const allQuestions: Question[] = res.data;
+
+          if (allQuestions.length > 0) {
+            const sorted = allQuestions.sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+            const latest = sorted[0];
+
+            let existingAnswer = "";
+            latest.responses?.forEach((resp) => {
+              const found = resp.voters.find(
+                (voter) => voter._id === parsed.studentId
+              );
+              if (found) {
+                existingAnswer = resp.answer;
+              }
+            });
+
+            setLatestQuestion(latest);
+            if (existingAnswer) {
+              setAnswer(existingAnswer);
+              setSubmitStatus("✅ You have already submitted your answer.");
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching latest question", err);
+        }
+      };
+
+      fetchLatestQuestion();
+    }
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!answer.trim()) {
+      alert("Please select or enter your answer.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/poll/vote/${latestQuestion?._id}`,
+        {
+          studentId,
+          answer,
+        }
+      );
+      setSubmitStatus("✅ Answer submitted successfully!");
+    } catch (err) {
+      console.error("Submission error:", err);
+      setSubmitStatus("❌ Failed to submit your answer.");
+    }
+  };
+
+  if (!latestQuestion) {
+    return <div className="p-6">Loading latest question...</div>;
+  }
 
   return (
-    <Layout userRole="teacher">
-      <div className="space-y-8">
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <div className="w-30">
+        <Sidebar />
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg p-6 shadow-card">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 rounded-lg bg-green-50 text-green-600">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{posts.length}</p>
-                <p className="text-sm text-gray-600">Total Polls</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-6 shadow-card">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{posts.filter(p => p.pollType === 'multiple-choice').length}</p>
-                <p className="text-sm text-gray-600">Multiple Choice</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-6 shadow-card">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 rounded-lg bg-purple-50 text-purple-600">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{posts.filter(p => p.pollType === 'open-ended').length}</p>
-                <p className="text-sm text-gray-600">Open Ended</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-6 shadow-card">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 rounded-lg bg-orange-50 text-orange-600">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">89</p>
-                <p className="text-sm text-gray-600">Total Responses</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Main Content */}
+      <div className="flex-1 p-8 ml-64">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+          Latest Question
+        </h1>
 
-        {/* Filters */}
-        <div className="flex items-center space-x-4">
-          <Filter className="w-5 h-5 text-gray-500" />
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          >
-            {pollTypes.map(type => (
-              <option key={type} value={type}>
-                {type === 'all' ? 'All Types' : type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="p-6 bg-white shadow-md rounded-lg border border-primary-500">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+            {latestQuestion.question}
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Classroom: {latestQuestion.classroom.name} | Teacher:{" "}
+            {latestQuestion.classroom.teacher.name}
+          </p>
 
-        {/* Polls List */}
-        <div className="space-y-4">
-          {filteredPosts.length > 0 ? (
-            filteredPosts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post} 
-                userRole="teacher"
-                onEdit={() => {}}
-                onDelete={() => {}}
-              />
-            ))
+          {latestQuestion.type === "mcq" && latestQuestion.options ? (
+            <select
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              disabled={!!submitStatus}
+              className="border border-gray-300 px-4 py-2 rounded-md mb-4 w-full md:w-1/2"
+            >
+              <option value="">Select an option</option>
+              {latestQuestion.options.map((opt, i) => (
+                <option key={i} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
           ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 text-lg mb-4">
-                {selectedType === 'all' ? 'No polls yet' : `No ${selectedType.replace('-', ' ')} polls yet`}
-              </div>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Create Your First Poll</span>
-              </button>
-            </div>
+            <input
+              type="text"
+              placeholder="Your Answer"
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              disabled={!!submitStatus}
+              className="border border-gray-300 px-4 py-2 rounded-md mb-4 w-full md:w-1/2"
+            />
+          )}
+
+          <button
+            onClick={handleSubmit}
+            disabled={!!submitStatus}
+            className={`${
+              submitStatus
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-primary-600 hover:bg-primary-700"
+            } text-white px-6 py-2 rounded-md`}
+          >
+            Submit
+          </button>
+
+          {submitStatus && (
+            <p className="mt-4 text-sm font-medium text-green-600">
+              {submitStatus}
+            </p>
           )}
         </div>
       </div>
-
-      {showCreateModal && (
-        <CreatePostModal
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={(newPost) => {
-            setPosts([newPost, ...posts]);
-            setShowCreateModal(false);
-          }}
-        />
-      )}
-    </Layout>
+    </div>
   );
 };
 
-export default StudentPolls;
+export default StudentLatestQuestion;

@@ -27,8 +27,8 @@ export const Sidebar: React.FC = () => {
     {
       icon: BarChart3,
       label: "Polls",
-      path: "/polls",
-      active: location.pathname === "/polls",
+      path: "/teacher-polls",
+      active: location.pathname === "/teacher-polls",
     },
     {
       icon: FileText,

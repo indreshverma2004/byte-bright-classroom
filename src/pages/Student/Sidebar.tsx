@@ -9,8 +9,8 @@ export const Sidebar: React.FC = () => {
     {
       icon: Home,
       label: "Dashboard",
-      path: "/",
-      active: location.pathname === "/student-dashboard" || location.pathname === "/",
+      path: "/student-dashboard",
+      active: location.pathname === "/student-dashboard" ,
     },
     {
       icon: BookOpen,
@@ -46,7 +46,7 @@ export const Sidebar: React.FC = () => {
             <Code className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">CodeClasssdklfjsdlj</h1>
+            <h1 className="text-xl font-bold text-gray-900">CodeClasss</h1>
             <p className="text-sm text-gray-500">Student</p>
           </div>
         </div>

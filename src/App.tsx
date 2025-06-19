@@ -19,6 +19,7 @@ import { StudentDashboard } from "./pages/Student/StudentDashboard";
 import Signup from "./pages/Signup";
 import TeacherLogin from "./pages/teacherlogin";
 import { TeacherDashboard } from "./pages/Teacher/Dashboard";
+import CreatePoll from "./pages/Teacher/CreatePoll";
 const App = () => (
       <BrowserRouter>
         <Routes>
@@ -35,7 +36,7 @@ const App = () => (
           <Route path="/signup" element={<Signup />} />
           <Route path="/teacher-login" element={<TeacherLogin />} />
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-          {/* Catch-all route for 404 Not Found */}
+          <Route path="/create-poll" element={<CreatePoll />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

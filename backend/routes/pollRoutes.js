@@ -10,6 +10,27 @@ router.post('/create', async (req, res) => {
   await Classroom.findByIdAndUpdate(req.body.classroom, { $push: { polls: poll._id } });
   res.send(poll);
 });
+// Get all polls with full classroom and teacher info
+router.get('/all', async (req, res) => {
+  try {
+    const polls = await Poll.find()
+      .populate({
+        path: 'classroom',
+        populate: {
+          path: 'teacher',
+          select: 'name', 
+        }
+      })
+      .populate('responses.voters')
+      .populate('textResponses.student');
+
+    res.send(polls);
+  } catch (error) {
+    console.error('Error fetching polls:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 // Vote or submit answer
 router.post('/vote/:pollId', async (req, res) => {

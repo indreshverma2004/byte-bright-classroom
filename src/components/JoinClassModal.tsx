@@ -1,18 +1,51 @@
-
-import React, { useState } from 'react';
-import { X, Users } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { X, Users } from "lucide-react";
+import axios from "axios";
 
 interface JoinClassModalProps {
   onClose: () => void;
-  onJoin: (code: string) => void;
+  onSuccess?: () => void; // Optional: to reload classroom data after joining
 }
 
-export const JoinClassModal: React.FC<JoinClassModalProps> = ({ onClose, onJoin }) => {
-  const [classCode, setClassCode] = useState('');
+export const JoinClassModal: React.FC<JoinClassModalProps> = ({
+  onClose,
+  onSuccess,
+}) => {
+  const [classCode, setClassCode] = useState("");
+  const [studentId, setStudentId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    if (classCode.trim()) {
-      onJoin(classCode.trim());
+  useEffect(() => {
+    const studentData = localStorage.getItem("studentData");
+    if (studentData) {
+      try {
+        const parsed = JSON.parse(studentData);
+        setStudentId(parsed.student._id);
+        console.log("Student ID:", parsed.student._id);
+      } catch (err) {
+        console.error("Failed to parse student data");
+      }
+    }
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!classCode.trim() || !studentId) return;
+
+    setLoading(true);
+    try {
+      const res = await axios.post("http://localhost:5000/student/enroll", {
+        studentId,
+        classCode: classCode,
+      });
+
+      alert("Successfully enrolled in class!");
+      if (onSuccess) onSuccess(); // Optional callback to refresh data
+      onClose();
+    } catch (error: any) {
+      console.error("Error enrolling:", error);
+      alert(error.response?.data || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -25,7 +58,9 @@ export const JoinClassModal: React.FC<JoinClassModalProps> = ({ onClose, onJoin 
             <div className="p-2 bg-secondary-100 rounded-lg">
               <Users className="w-5 h-5 text-secondary-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900">Join Classroom</h3>
+            <h3 className="text-xl font-semibold text-gray-900">
+              Join Classroom
+            </h3>
           </div>
           <button
             onClick={onClose}
@@ -35,21 +70,26 @@ export const JoinClassModal: React.FC<JoinClassModalProps> = ({ onClose, onJoin 
           </button>
         </div>
 
+        {/* Form */}
         <div className="p-6">
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Class Code
             </label>
-            <input
-              type="text"
-              value={classCode}
-              onChange={(e) => setClassCode(e.target.value.toUpperCase())}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-transparent font-mono text-center text-lg tracking-wider"
-              placeholder="Enter class code..."
-              maxLength={6}
-            />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Class Code
+              </label>
+              <input
+                type="text"
+                value={classCode}
+                onChange={(e) => setClassCode(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-secondary-500 focus:outline-none"
+                placeholder="Enter class code..."
+              />
+            </div>
           </div>
-          
+
           <p className="text-sm text-gray-600 mb-6">
             Ask your teacher for the class code to join their classroom.
           </p>
@@ -63,10 +103,10 @@ export const JoinClassModal: React.FC<JoinClassModalProps> = ({ onClose, onJoin 
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!classCode.trim()}
+              disabled={!classCode.trim() || loading}
               className="flex-1 px-4 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Join Class
+              {loading ? "Joining..." : "Join Class"}
             </button>
           </div>
         </div>

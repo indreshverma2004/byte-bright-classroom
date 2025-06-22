@@ -26,9 +26,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       message: "Login successful",
-      studentId: student._id,
-      name: student.name,
-      email: student.email
+      student
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -37,22 +35,30 @@ router.post('/login', async (req, res) => {
 
 
 // Enroll in a classroom using class code
-router.post('/enroll', async (req, res) => {
+router.post("/enroll", async (req, res) => {
   try {
     const { studentId, classCode } = req.body;
+
     const classroom = await Classroom.findOne({ code: classCode });
     if (!classroom) return res.status(404).send("Classroom not found");
 
-    await Student.findByIdAndUpdate(studentId, {
-      $addToSet: { enrollments: { classroom: classroom._id, submissions: [] } }
-    });
+    const student = await Student.findById(studentId);
 
-    // Also add student to classroom's student list
-    await Classroom.findByIdAndUpdate(classroom._id, {
-      $addToSet: { students: studentId }
-    });
+    const isAlreadyEnrolled = student.enrollments.some(
+      (e) => e.classroom.toString() === classroom._id.toString()
+    );
 
-    res.send("Enrolled successfully");
+    if (!isAlreadyEnrolled) {
+      student.enrollments.push({ classroom: classroom._id, submissions: [] });
+      await student.save();
+
+      classroom.students.addToSet(studentId); // ensures no duplicate
+      await classroom.save();
+
+      return res.send("Enrolled successfully");
+    } else {
+      return res.status(400).send("Student already enrolled");
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

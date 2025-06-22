@@ -12,6 +12,7 @@ const pollSchema = new mongoose.Schema({
   type: { type: String, enum: ['mcq', 'text'], required: true },
   options: [String], 
   responses: [responseSchema], 
+  Date: { type: Date, default: Date.now },
   textResponses: [{ student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' }, answer: String }],
 });
 

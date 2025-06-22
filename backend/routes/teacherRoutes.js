@@ -21,9 +21,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       message: "Login successful",
-      teacherId: teacher._id,
-      name: teacher.name,
-      email: teacher.email
+      teacher
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

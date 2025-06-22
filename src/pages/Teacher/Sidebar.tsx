@@ -9,8 +9,8 @@ export const Sidebar: React.FC = () => {
     {
       icon: Home,
       label: "Dashboard",
-      path: "/",
-      active: location.pathname === "/",
+      path: "/teacher-dashboard",
+      active: location.pathname === "/teacher-dashboard",
     },
     {
       icon: Users,

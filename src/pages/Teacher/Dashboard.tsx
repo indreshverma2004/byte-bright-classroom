@@ -1,46 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { Layout } from "../../components/Layout";
 import { ClassroomCard } from "../../components/ClassroomCard";
-import { PostCard } from "../../components/PostCard";
 import { Plus } from "lucide-react";
 
 export const TeacherDashboard: React.FC = () => {
   const [teacherName, setTeacherName] = useState("Teacher");
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      type: "question" as const,
-      title: "Two Sum Problem",
-      description:
-        "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-      language: "Python",
-      testCases: [
-        { input: "[2,7,11,15], 9", output: "[0,1]" },
-        { input: "[3,2,4], 6", output: "[1,2]" },
-      ],
-      isVisible: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      type: "poll" as const,
-      title: "Which programming concept is most challenging?",
-      pollType: "multiple-choice" as const,
-      options: [
-        "Recursion",
-        "Pointers",
-        "Object-oriented Programming",
-        "Data Structures",
-      ],
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  const [classroomData, setClassroomData] = useState<any[]>([]);
 
   useEffect(() => {
-    const teacherData = localStorage.getItem("teacherData");
-    if (teacherData) {
-      const parsed = JSON.parse(teacherData);
-      setTeacherName(parsed.name || "Teacher");
+    const teacherDataString = localStorage.getItem("teacherData");
+    if (!teacherDataString) return;
+
+    try {
+      const teacherData = JSON.parse(teacherDataString);
+      setTeacherName(teacherData.teacher.name || "Teacher");
+
+      const classroomIds: string[] = teacherData.teacher.classrooms;
+
+      // Fetch each classroom by ID using Promise.all
+      Promise.all(
+        classroomIds.map((id) =>
+          fetch(`http://localhost:5000/classroom/${id}`).then((res) =>
+            res.json()
+          )
+        )
+      )
+        .then((classroomResults) => {
+          setClassroomData(classroomResults);
+        })
+        .catch((err) => console.error("Failed to load classrooms", err));
+    } catch (error) {
+      console.error("Error parsing teacher data", error);
     }
   }, []);
 
@@ -70,29 +60,19 @@ export const TeacherDashboard: React.FC = () => {
         {/* Classroom Section */}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">Your Classrooms</h2>
-          <ClassroomCard
-            name="Advanced Python Programming"
-            code="ABC123"
-            studentCount={24}
-            userRole="teacher"
-          />
-          {/* Add more classrooms dynamically if needed */}
-        </div>
-
-        {/* Posts Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Recent Posts</h2>
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
+          {classroomData.length > 0 ? (
+            classroomData.map((classroom) => (
+              <ClassroomCard
+                key={classroom._id}
+                name={classroom.name}
+                code={classroom.code}
+                studentCount={classroom.students?.length || 0}
                 userRole="teacher"
-                onEdit={() => console.log("Edit post", post.id)}
-                onDelete={() => console.log("Delete post", post.id)}
               />
-            ))}
-          </div>
+            ))
+          ) : (
+            <p className="text-gray-600">You don't have any classrooms yet.</p>
+          )}
         </div>
       </div>
     </Layout>

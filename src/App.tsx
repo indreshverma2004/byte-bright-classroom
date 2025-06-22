@@ -20,6 +20,7 @@ import TeacherLogin from "./pages/teacherlogin";
 import { TeacherDashboard } from "./pages/Teacher/Dashboard";
 import CreatePoll from "./pages/Teacher/CreatePoll";
 import CreateClassroom from "./pages/Teacher/CreateClassroom";
+import StudentRegisterForm from "./pages/Student/studentRegister";
 const App = () => (
       <BrowserRouter>
         <Routes>
@@ -37,6 +38,8 @@ const App = () => (
           <Route path="/teacher-login" element={<TeacherLogin />} />
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/create-poll" element={<CreatePoll />} />
+          <Route path="/student-register" element={<StudentRegisterForm />} />
+          {/* Query Client Provider for React Query */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

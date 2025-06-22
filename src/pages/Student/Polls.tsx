@@ -50,8 +50,9 @@ const StudentPolls: React.FC = () => {
     try {
       const parsed = JSON.parse(studentData);
       setStudentId(parsed.student._id);
-      const enrolledIds = parsed.student.enrollments.map(
-        (e: any) => e.classroom
+
+      const enrolledIds = parsed.student.enrollments.map((e: any) =>
+        typeof e.classroom === "string" ? e.classroom : e.classroom._id
       );
 
       const fetchPolls = async () => {
@@ -59,7 +60,11 @@ const StudentPolls: React.FC = () => {
         const allPolls: Question[] = res.data;
 
         const filtered = allPolls.filter((poll) =>
-          enrolledIds.includes(poll.classroom._id || poll.classroom)
+          enrolledIds.includes(
+            typeof poll.classroom === "string"
+              ? poll.classroom
+              : poll.classroom._id
+          )
         );
 
         const submittedMap: Record<string, boolean> = {};
@@ -77,7 +82,6 @@ const StudentPolls: React.FC = () => {
           });
         });
 
-        // ✅ Sort by date descending (latest first)
         const sorted = filtered.sort(
           (a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime()
         );
@@ -92,6 +96,7 @@ const StudentPolls: React.FC = () => {
       console.error("Error parsing student data", err);
     }
   }, []);
+  
 
   const handleSubmit = async (pollId: string, pollDate: string) => {
     const answer = answers[pollId];

@@ -4,7 +4,7 @@ import axios from "axios";
 
 interface JoinClassModalProps {
   onClose: () => void;
-  onSuccess?: () => void; // Optional: to reload classroom data after joining
+  onSuccess?: () => void; // Optional: reload student + classroom data
 }
 
 export const JoinClassModal: React.FC<JoinClassModalProps> = ({
@@ -21,7 +21,6 @@ export const JoinClassModal: React.FC<JoinClassModalProps> = ({
       try {
         const parsed = JSON.parse(studentData);
         setStudentId(parsed.student._id);
-        console.log("Student ID:", parsed.student._id);
       } catch (err) {
         console.error("Failed to parse student data");
       }
@@ -33,17 +32,33 @@ export const JoinClassModal: React.FC<JoinClassModalProps> = ({
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/student/enroll", {
+      // Step 1: Enroll
+      await axios.post("http://localhost:5000/student/enroll", {
         studentId,
-        classCode: classCode,
+        classCode,
       });
 
-      alert("Successfully enrolled in class!");
-      if (onSuccess) onSuccess(); // Optional callback to refresh data
+      // Step 2: Fetch latest student data
+      const updatedRes = await axios.get(
+        `http://localhost:5000/student/${studentId}`
+      );
+      const updatedStudent = updatedRes.data;
+
+      // Step 3: Save to localStorage
+      localStorage.setItem(
+        "studentData",
+        JSON.stringify({ student: updatedStudent })
+      );
+
+      alert("✅ Successfully enrolled in class!");
+
+      // Step 4: Refresh UI
+      if (onSuccess) onSuccess();
+
       onClose();
     } catch (error: any) {
       console.error("Error enrolling:", error);
-      alert(error.response?.data || "Something went wrong.");
+      alert(error.response?.data?.message || "❌ Failed to join classroom.");
     } finally {
       setLoading(false);
     }
@@ -72,23 +87,16 @@ export const JoinClassModal: React.FC<JoinClassModalProps> = ({
 
         {/* Form */}
         <div className="p-6">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Class Code
-            </label>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Class Code
-              </label>
-              <input
-                type="text"
-                value={classCode}
-                onChange={(e) => setClassCode(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-secondary-500 focus:outline-none"
-                placeholder="Enter class code..."
-              />
-            </div>
-          </div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Class Code
+          </label>
+          <input
+            type="text"
+            value={classCode}
+            onChange={(e) => setClassCode(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-secondary-500 focus:outline-none mb-4"
+            placeholder="Enter class code..."
+          />
 
           <p className="text-sm text-gray-600 mb-6">
             Ask your teacher for the class code to join their classroom.

@@ -1,50 +1,55 @@
 import React, { useEffect, useState } from "react";
-import { Layout } from "../../components/Layout";
 import { ClassroomCard } from "../../components/ClassroomCard";
-import { PostCard } from "../../components/PostCard";
-import { JoinClassModal } from "../../components/JoinClassModal";
 import { Sidebar } from "./Sidebar";
 import { Plus } from "lucide-react";
+import { JoinClassModal } from "../../components/JoinClassModal";
 
 export const StudentDashboard: React.FC = () => {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [studentName, setStudentName] = useState("");
   const [classrooms, setClassrooms] = useState<any[]>([]);
 
-  useEffect(() => {
-    const studentDataString = localStorage.getItem("studentData");
-    if (!studentDataString) return;
+  const fetchAndUpdateStudentData = async () => {
+    const stored = localStorage.getItem("studentData");
+    if (!stored) return;
 
     try {
-      const studentData = JSON.parse(studentDataString);
-      setStudentName(studentData.student.name || "Student");
+      const parsed = JSON.parse(stored);
+      const studentId = parsed?.student?._id;
 
-      const enrollmentList = studentData.student.enrollments || [];
-      const classroomIds = enrollmentList.map(
-        (enroll: any) => enroll.classroom
+      if (!studentId) return;
+
+      // ✅ Fetch updated student data
+      const res = await fetch(`http://localhost:5000/student/${studentId}`);
+      if (!res.ok) throw new Error("Failed to fetch updated student info");
+
+      const updatedStudent = await res.json();
+
+      // ✅ Save new data
+      localStorage.setItem(
+        "studentData",
+        JSON.stringify({ student: updatedStudent })
       );
-      Promise.all(
-        classroomIds.map((id: string) =>
-          fetch(`http://localhost:5000/classroom/${id}`).then((res) =>
-            res.json()
-          )
-        )
-      )
-        .then((classroomData) => {
-          setClassrooms(classroomData);
-        })
-        .catch((error) => console.error("Error fetching classrooms:", error));
-    } catch (err) {
-      console.error("Error parsing student data", err);
+      setStudentName(updatedStudent.name || "Student");
+
+      // ✅ Extract populated classrooms
+      const classroomList = updatedStudent.enrollments.map(
+        (e: any) => e.classroom
+      );
+      setClassrooms(classroomList);
+    } catch (error) {
+      console.error("Failed to refresh student data:", error);
     }
+  };
+
+  useEffect(() => {
+    fetchAndUpdateStudentData();
   }, []);
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main content */}
       <div className="flex-1 p-8 ml-64">
         <div className="space-y-8">
           {/* Header */}
@@ -95,11 +100,7 @@ export const StudentDashboard: React.FC = () => {
       {showJoinModal && (
         <JoinClassModal
           onClose={() => setShowJoinModal(false)}
-          onJoin={(code) => {
-            console.log("Student joining class with code:", code);
-            setShowJoinModal(false);
-            // Optionally: refresh classroom list after joining
-          }}
+          onSuccess={fetchAndUpdateStudentData} // 👈 reload classrooms after joining
         />
       )}
     </div>

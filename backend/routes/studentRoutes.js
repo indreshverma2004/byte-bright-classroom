@@ -8,7 +8,10 @@ router.post('/register', async (req, res) => {
   try {
     const student = new Student(req.body);
     await student.save();
-    res.send(student);
+    res.json({
+      message: "Sign up successful",
+      student,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -79,6 +82,17 @@ router.get('/classrooms/:studentId', async (req, res) => {
     res.send(enrolledClassrooms);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /student/:id
+router.get("/:id", async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id).populate("enrollments.classroom");
+    if (!student) return res.status(404).json({ message: "Student not found" });
+    res.json(student);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 });
 

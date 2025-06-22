@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 const StudentLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -81,6 +81,14 @@ const StudentLogin = () => {
           >
             Forgot your password?
           </a>
+        </div>
+        <div className="mt-6 text-center">
+          <Link
+            to="/student-register"
+            className="text-sm text-blue-600 hover:text-blue-800 transition duration-200"
+          >
+            create an account
+          </Link>
         </div>
       </div>
     </div>

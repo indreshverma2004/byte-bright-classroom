@@ -35,7 +35,7 @@ export default function CreateClassroom() {
         }
       );
 
-      setSuccess("Classroom created successfully!");
+      setSuccess("Classroom created successfully! Relogin to see changes.");
       setError("");
       setTimeout(() => {
         navigate("/teacher-dashboard"); // or wherever the teacher dashboard lives

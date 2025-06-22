@@ -10,11 +10,11 @@ router.get('/:id', async (req, res) => {
         populate: [
           {
             path: 'responses.voters',
-            select: 'name email'  // optional: if you want to show who voted
+            select: 'name email'  
           },
           {
             path: 'textResponses.student',
-            select: 'name email'  // optional: show who gave text answers
+            select: 'name email'
           }
         ]
       })

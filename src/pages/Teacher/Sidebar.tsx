@@ -13,12 +13,6 @@ export const Sidebar: React.FC = () => {
       active: location.pathname === "/teacher-dashboard",
     },
     {
-      icon: Users,
-      label: "Classroom",
-      path: "/classroom",
-      active: location.pathname.startsWith("/classroom"),
-    },
-    {
       icon: Code,
       label: "Coding Tasks",
       path: "/coding-tasks",
@@ -29,12 +23,6 @@ export const Sidebar: React.FC = () => {
       label: "Polls",
       path: "/teacher-polls",
       active: location.pathname === "/teacher-polls",
-    },
-    {
-      icon: FileText,
-      label: "Submissions",
-      path: "/submissions",
-      active: location.pathname === "/submissions",
     },
   ];
 

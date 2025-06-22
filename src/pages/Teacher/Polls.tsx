@@ -16,10 +16,12 @@ const TeacherPolls = () => {
       const teacherData = localStorage.getItem("teacherData");
       if (!teacherData) return;
 
-      const { teacherId } = JSON.parse(teacherData);
+      const teacher = JSON.parse(teacherData);
+      const teacherId = teacher.teacher._id;
 
       try {
         const res = await axios.get("http://localhost:5000/poll/all");
+
         const filtered = res.data
           .filter((poll: any) => poll.classroom.teacher._id === teacherId)
           .map((poll: any) => ({
@@ -28,13 +30,16 @@ const TeacherPolls = () => {
             pollType: poll.type === "mcq" ? "multiple-choice" : "open-ended",
             options: poll.options || [],
             responses: poll.responses || [],
+            classroomName: `${poll.classroom.name} (${poll.classroom.code})`,
             createdAt: poll.createdAt,
           }));
+
         setPosts(filtered);
       } catch (err) {
         console.error("Error fetching polls", err);
       }
     };
+
     fetchPolls();
   }, []);
 
@@ -42,13 +47,6 @@ const TeacherPolls = () => {
     selectedType === "all"
       ? posts
       : posts.filter((post) => post.pollType === selectedType);
-
-  const totalResponses = posts.reduce(
-    (acc, post) =>
-      acc +
-      (post.responses?.reduce((sum: number, r: any) => sum + r.count, 0) || 0),
-    0
-  );
 
   return (
     <Layout userRole="teacher">
@@ -62,9 +60,7 @@ const TeacherPolls = () => {
             </p>
           </div>
           <Link to="/create-poll">
-            <button
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary-500 to-secondary-600 text-white rounded-lg hover:from-secondary-600 hover:to-secondary-700 transition-all duration-200 shadow-md hover:shadow-lg"
-            >
+            <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary-500 to-secondary-600 text-white rounded-lg hover:from-secondary-600 hover:to-secondary-700 transition-all duration-200 shadow-md hover:shadow-lg">
               <Plus className="w-5 h-5" />
               <span className="font-medium">Create Poll</span>
             </button>
@@ -105,7 +101,7 @@ const TeacherPolls = () => {
           </select>
         </div>
 
-        {/* Polls */}
+        {/* Polls List */}
         <div className="space-y-6">
           {filteredPosts.length > 0 ? (
             filteredPosts.map((post) => {
@@ -120,9 +116,13 @@ const TeacherPolls = () => {
                   key={post.id}
                   className="bg-white rounded-lg shadow p-5 border border-gray-100"
                 >
-                  <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-1">
                     {post.title}
                   </h2>
+                  <p className="text-sm text-gray-500 mb-2">
+                    Classroom:{" "}
+                    <span className="font-medium">{post.classroomName}</span>
+                  </p>
 
                   {post.pollType === "multiple-choice" ? (
                     <div className="space-y-2">
@@ -134,6 +134,7 @@ const TeacherPolls = () => {
                         const percent = totalVotes
                           ? ((count / totalVotes) * 100).toFixed(1)
                           : "0";
+
                         return (
                           <div key={option}>
                             <div className="flex justify-between text-sm text-gray-700">

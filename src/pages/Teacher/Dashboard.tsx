@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Layout } from "../../components/Layout";
 import { ClassroomCard } from "../../components/ClassroomCard";
 import { Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const TeacherDashboard: React.FC = () => {
   const [teacherName, setTeacherName] = useState("Teacher");
@@ -47,14 +48,14 @@ export const TeacherDashboard: React.FC = () => {
               Manage your classes, posts, and students efficiently.
             </p>
           </div>
-
-          <a
-            href="/classroom/create"
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">Create Class</span>
-          </a>
+          <div className="flex items-center">
+            <Link
+              to="/classroom/create"
+              className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-black font-medium rounded-lg shadow hover:from-primary-600 hover:to-primary-700 transition duration-200"
+            >
+              + Create Class
+            </Link>
+          </div>
         </div>
 
         {/* Classroom Section */}

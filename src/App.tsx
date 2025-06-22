@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ClassroomList from "./pages/Student/ClassroomList";
-import CreateClassroom from "./pages/CreateClassroom";
 import ClassroomDetail from "./pages/ClassroomDetail";
 import CodingTasks from "./pages/Student/CodingTasks";
 import TeacherPolls from "./pages/Teacher/Polls";
@@ -20,6 +19,7 @@ import Signup from "./pages/Signup";
 import TeacherLogin from "./pages/teacherlogin";
 import { TeacherDashboard } from "./pages/Teacher/Dashboard";
 import CreatePoll from "./pages/Teacher/CreatePoll";
+import CreateClassroom from "./pages/Teacher/CreateClassroom";
 const App = () => (
       <BrowserRouter>
         <Routes>

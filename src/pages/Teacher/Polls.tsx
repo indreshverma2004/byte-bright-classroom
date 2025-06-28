@@ -1,13 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { Layout } from "../../components/Layout";
-import { CreatePostModal } from "../../components/CreatePostModal";
 import { Plus, BarChart3, Filter } from "lucide-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+// Define poll types
+type PollType = "multiple-choice" | "open-ended";
+
+// Interfaces
+interface MCQResponse {
+  answer: string;
+  count: number;
+  voters: { _id: string }[];
+}
+
+interface TextResponse {
+  answer: string;
+  student: { _id: string };
+}
+
+interface PostType {
+  id: string;
+  title: string;
+  pollType: PollType;
+  options?: string[];
+  responses?: MCQResponse[];
+  textResponses?: TextResponse[];
+  classroomName: string;
+  createdAt: string;
+}
+
 const TeacherPolls = () => {
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [selectedType, setSelectedType] = useState("all");
   const pollTypes = ["all", "multiple-choice", "open-ended"];
 
@@ -30,8 +54,9 @@ const TeacherPolls = () => {
             pollType: poll.type === "mcq" ? "multiple-choice" : "open-ended",
             options: poll.options || [],
             responses: poll.responses || [],
+            textResponses: poll.textResponses || [],
             classroomName: `${poll.classroom.name} (${poll.classroom.code})`,
-            createdAt: poll.createdAt,
+            createdAt: poll.Date || poll.createdAt
           }));
 
         setPosts(filtered);
@@ -94,22 +119,18 @@ const TeacherPolls = () => {
               <option key={type} value={type}>
                 {type === "all"
                   ? "All Types"
-                  : type.charAt(0).toUpperCase() +
-                    type.slice(1).replace("-", " ")}
+                  : type.charAt(0).toUpperCase() + type.slice(1).replace("-", " ")}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Polls List */}
+        {/* Poll List */}
         <div className="space-y-6">
           {filteredPosts.length > 0 ? (
             filteredPosts.map((post) => {
               const totalVotes =
-                post.responses?.reduce(
-                  (acc: number, r: any) => acc + r.count,
-                  0
-                ) || 0;
+                post.responses?.reduce((acc, r) => acc + r.count, 0) || 0;
 
               return (
                 <div
@@ -120,16 +141,14 @@ const TeacherPolls = () => {
                     {post.title}
                   </h2>
                   <p className="text-sm text-gray-500 mb-2">
-                    Classroom:{" "}
-                    <span className="font-medium">{post.classroomName}</span>
+                    Classroom: <span className="font-medium">{post.classroomName}</span>
                   </p>
 
+                  {/* Multiple Choice Poll */}
                   {post.pollType === "multiple-choice" ? (
                     <div className="space-y-2">
-                      {post.options.map((option: string) => {
-                        const res = post.responses.find(
-                          (r: any) => r.answer === option
-                        );
+                      {post.options?.map((option: string) => {
+                        const res = post.responses?.find((r) => r.answer === option);
                         const count = res?.count || 0;
                         const percent = totalVotes
                           ? ((count / totalVotes) * 100).toFixed(1)
@@ -140,7 +159,7 @@ const TeacherPolls = () => {
                             <div className="flex justify-between text-sm text-gray-700">
                               <span>{option}</span>
                               <span>
-                                {count} votes ({percent}%)
+                                {count} vote{count !== 1 ? "s" : ""} ({percent}%)
                               </span>
                             </div>
                             <div className="h-2 w-full bg-gray-200 rounded-full mt-1">
@@ -154,35 +173,42 @@ const TeacherPolls = () => {
                       })}
                     </div>
                   ) : (
-                    <p className="italic text-sm text-gray-500">
-                      Open-ended question. Responses are stored privately.
-                    </p>
+                    // Open-Ended Poll with grouped responses
+                    <div className="space-y-2 mt-2">
+                      <p className="text-sm text-gray-700 font-medium mb-1">Student Responses:</p>
+                      {post.textResponses && post.textResponses.length > 0 ? (
+                        Object.entries(
+                          post.textResponses.reduce((acc: Record<string, number>, response) => {
+                            const ans = response.answer.trim();
+                            acc[ans] = (acc[ans] || 0) + 1;
+                            return acc;
+                          }, {})
+                        ).map(([answer, count]) => (
+                          <div key={answer} className="border-b pb-1 mb-1">
+                            <p className="text-gray-800 text-sm">
+                              "{answer}" — <span className="font-semibold">{count}</span>{" "}
+                              response{count > 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 text-sm italic">No responses yet.</p>
+                      )}
+                    </div>
                   )}
                 </div>
               );
             })
           ) : (
-            <div className="text-center text-gray-400 text-lg">
-              No polls to display
-            </div>
+            <div className="text-center text-gray-400 text-lg">No polls to display</div>
           )}
         </div>
       </div>
-
-      {showCreateModal && (
-        <CreatePostModal
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={(newPost) => {
-            setPosts([newPost, ...posts]);
-            setShowCreateModal(false);
-          }}
-        />
-      )}
     </Layout>
   );
 };
 
-// Reusable StatsCard
+// Stats card component
 const StatsCard = ({
   title,
   count,

@@ -60,21 +60,23 @@ export const TeacherDashboard: React.FC = () => {
 
         {/* Classroom Section */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Your Classrooms</h2>
-          {classroomData.length > 0 ? (
-            classroomData.map((classroom) => (
+        <h2 className="text-2xl font-bold text-gray-900">Your Classrooms</h2>
+        {classroomData.length > 0 ? (
+          classroomData.map((classroom) => (
+            <Link to={`/classroom/${classroom._id}`} key={classroom._id}>
               <ClassroomCard
-                key={classroom._id}
                 name={classroom.name}
                 code={classroom.code}
                 studentCount={classroom.students?.length || 0}
                 userRole="teacher"
               />
-            ))
-          ) : (
-            <p className="text-gray-600">You don't have any classrooms yet.</p>
-          )}
-        </div>
+            </Link>
+          ))
+        ) : (
+          <p className="text-gray-600">You don't have any classrooms yet.</p>
+        )}
+      </div>
+
       </div>
     </Layout>
   );

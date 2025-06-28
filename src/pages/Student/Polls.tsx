@@ -71,16 +71,27 @@ const StudentPolls: React.FC = () => {
         const answerMap: Record<string, string> = {};
 
         filtered.forEach((poll) => {
-          poll.responses?.forEach((resp) => {
-            const found = resp.voters.find(
-              (voter) => voter._id === parsed.student._id
+          if (poll.type === "mcq") {
+            poll.responses?.forEach((resp) => {
+              const found = resp.voters.find(
+                (voter) => voter._id === parsed.student._id
+              );
+              if (found) {
+                submittedMap[poll._id] = true;
+                answerMap[poll._id] = resp.answer;
+              }
+            });
+          } else if (poll.type === "text" && Array.isArray((poll as any).textResponses)) {
+            const response = (poll as any).textResponses.find(
+              (resp: any) => resp.student?._id === parsed.student._id
             );
-            if (found) {
+            if (response) {
               submittedMap[poll._id] = true;
-              answerMap[poll._id] = resp.answer;
+              answerMap[poll._id] = response.answer;
             }
-          });
+          }
         });
+
 
         const sorted = filtered.sort(
           (a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime()
